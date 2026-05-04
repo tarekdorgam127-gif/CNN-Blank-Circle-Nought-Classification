@@ -1,92 +1,92 @@
-#  CNN Image Classification — Blank / Circle / Nought
+# CNN Geometric Shape Classifier
 
-##   المشروع بيعمل إيه؟
+[![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)](https://pytorch.org/)
+[![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/)
+[![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)](https://jupyter.org/)
 
-المشروع بيدرّب شبكة عصبية تلافيفية (CNN) تصنّف الصور إلى 3 فئات:
+A robust Convolutional Neural Network (CNN) implemented in PyTorch, designed from scratch to classify geometric shapes. This system accurately distinguishes between empty segments, circles, and crosses—the foundational visual elements of games such as Tic-Tac-Toe.
 
-| الفئة | الوصف |
-|-------|--------|
-| `blank` | صورة فارغة بدون رسم |
-| `circle` |  دائرة |
-| `nought` |   إكس |
+## 🎯 Project Overview
 
-الهدف هو بناء موديل يقدر يفرق بين الصور دي تلقائيًا باستخدام الـ Deep Learning.
+This repository contains the architecture and training pipeline for a highly efficient custom CNN model. The model classifies images into three distinct categories:
+- `blank`: Empty canvas space.
+- `circle`: Contains a hand-drawn or digital circle (⭕).
+- `nought`: Contains a hand-drawn or digital cross (❌).
+
+Through extensive training, the model autonomously extracts deep visual features, achieving exceptional accuracy across test subsets.
 
 ---
 
-##  إزاي نشغّله؟
+## 🚀 Installation & Setup
 
-### 1. جهّز البيئة
-تأكد إن عندك Python و PyTorch مثبتين:
+### 1. Prerequisites
+
+Ensure you have a Python environment set up. Install the required deep learning dependencies via `pip`:
 
 ```bash
-pip install torch torchvision
+pip install -r requirements.txt
 ```
 
-### 2. جهّز البيانات
-- فك ضغط ملفات الـ ZIP:
-  - `Blanck-Circle-Nought-dataset-trian.zip` → مجلد `data/train`
-  - `Blanck-Circle-Nought-datase-test.zip` → مجلد `data/test`
-- تأكد إن كل فئة في مجلدها الخاص داخل `train/` و `test/`
+### 2. Dataset Configuration
 
-### 3. شغّل الـ Notebook
-افتح الملف ده وشغّل الـ cells بالترتيب:
+The data is separated into training and testing ZIP archives. To prepare your pipeline:
+1. Extract `Blanck-Circle-Nought-dataset-trian.zip` and place its contents into `data/train/`.
+2. Extract `Blanck-Circle-Nought-datase-test.zip` and place its contents into `data/test/`.
 
+Your working directory must reflect the following structure:
+```text
+data/
+├── train/
+│   ├── blank/
+│   ├── circle/
+│   └── nought/
+└── test/
+    ├── blank/
+    ├── circle/
+    └── nought/
 ```
-CNN_classification_blanck_circle_nought.ipynb
-```
 
-> **ملاحظة:** الكود الأصلي اتشغّل على **Google Colab** مع GPU من نوع **T4**.  
-> لو بتشغّله locally، غيّر مسار البيانات من `/content/drive/MyDrive/data/` للمسار عندك.
+### 3. Execution
+
+Launch the core Jupyter Notebook to begin training:
+```bash
+jupyter notebook CNN_classification_blanck_circle_nought.ipynb
+```
+> **Note:** If you are executing the pipeline locally (outside of Google Colab), update the dataset root directory path within the notebook to point to your local `./data/` directory.
 
 ---
 
-##  اللي استخدمته
+## 🧠 Model Architecture
 
-### المكتبات
+The custom CNN architecture (`CustomCNN`) is structured for maximal parameter efficiency while preventing overfitting via spatial dropouts:
 
-| المكتبة | الاستخدام |
-|---------|-----------|
-| `torch` | بناء وتدريب الموديل |
-| `torch.nn` | طبقات الشبكة العصبية |
-| `torchvision.transforms` | معالجة الصور (Resize, Normalize) |
-| `torchvision.datasets.ImageFolder` | تحميل البيانات من المجلدات |
-| `torch.utils.data.DataLoader` | تحميل الـ batches |
+| Layer Type | Configuration | Output Dimensions |
+|------------|---------------|-------------------|
+| **Input** | `3 channels (RGB)` | `3 x 28 x 28` |
+| **Conv2D + MaxPool** | `in: 3, out: 16, kernel: 3x3` + `ReLU` | `16 x 14 x 14` |
+| **Conv2D + MaxPool** | `in: 16, out: 32, kernel: 3x3` + `ReLU` | `32 x 7 x 7` |
+| **Flatten** | `Flatten(start_dim=1)` | `1568` |
+| **Linear (fc1)** | `in: 1568, out: 128` + `ReLU` + `Dropout(0.6)` | `128` |
+| **Linear (fc2)** | `in: 128, out: 3` (Output) | `3` (Logits) |
 
-### الموديل — `CustomCNN`
+---
 
-شبكة CNN مبنية from scratch بتتكون من:
+## 📈 Training and Performance
 
-```
-Input (3 × 28 × 28)
-    ↓
-Conv2d(3 → 16, kernel=3) + ReLU + MaxPool → (16 × 14 × 14)
-    ↓
-Conv2d(16 → 32, kernel=3) + ReLU + MaxPool → (32 × 7 × 7)
-    ↓
-Flatten → 1568
-    ↓
-Linear(1568 → 128) + ReLU + Dropout(0.6)
-    ↓
-Linear(128 → 3)  ← Output (3 classes)
-```
+The model was optimized using **Adam** (`lr=0.001`, `weight_decay=0.0005`) against a Multi-class **Cross-Entropy Loss** function.
 
-### إعدادات التدريب
+### Metrics Summary
 
-| الإعداد | القيمة |
-|---------|--------|
-| Optimizer | Adam (lr=0.001) |
-| Loss Function | CrossEntropyLoss |
-| Regularization | Weight Decay = 0.0005 (L2) |
-| Batch Size | 10 |
-| Epochs | 8 |
+Through precisely 8 epochs of iterative training, the model achieves near-perfect classification generalization on unseen data.
 
-### نتائج التدريب
+| Dataset Phase | Metric | Final Result |
+|---------------|--------|--------------|
+| **Training** | Accuracy | `99.17%` |
+| **Training** | Loss | `0.0289` |
+| **Testing** | Accuracy | **`100.0%`** |
+| **Testing** | Loss | **`0.0049`** |
 
-| Epoch | Loss | Accuracy |
-|-------|------|----------|
-| 1 | 0.7940 | 58.1% |
-| 4 | 0.2473 | 90.4% |
-| 8 | 0.0289 | **99.2%** |
+---
 
-**نتيجة الـ Test:** `Loss: 0.0049 — Accuracy: 100%` 
+**Author:** [Tareq Dorgam](https://github.com/tarekdorgam127-gif)  
+*Built with passion and PyTorch.*
